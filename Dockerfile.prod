@@ -1,10 +1,16 @@
 FROM php:7.3.6-fpm-alpine3.9
 
-RUN apk add --no-cache openssl bash mysql-client nodejs npm
+RUN apk add --no-cache openssl bash mysql-client nodejs npm autoconf git g++ make
 RUN docker-php-ext-install pdo pdo_mysql
 
-RUN pecl install redis \
-    && docker-php-ext-enable redis
+RUN \
+  git clone https://github.com/phpredis/phpredis.git && \
+  cd phpredis && \
+  git checkout php7 && \
+  phpize && \
+  ./configure && \
+  make && make install && \
+  docker-php-ext-enable redis
 
 WORKDIR /var/www
 RUN rm -rf /var/www/html
